@@ -1,11 +1,11 @@
 # README for a VM set up for a new user 
 
-This README explains to a new user how to set up a new VM. It assumes that a user has a new VM and has a GitHub use key. 
+This README explains to a new user how to set up a new VM. After following these steps below, you will have a VM configured with necessary packages installed and your GitHub repository cloned and ready to use. 
 
 ## Prerequisites
 
 - VM (use the Ubuntu Server 26.04 select as it is the latest version)
-- GitHub SSH key that is newly created in your GitHub account (go to Seetings > SSH and GPG keys > click 'new SSH key')
+- GitHub SSH key that is newly created in your GitHub account (go to Settings > SSH and GPG keys > click 'new SSH key')
 - GitHub username and email address
 
 ## Steps
@@ -18,7 +18,7 @@ From your home directory, run:
 bash init.sh
 ```
 
-This script includes three packages (make, python3.14, and tree) and has them ready for you to execute. When you run the bash line, it will install all three in your home directory. 
+When you run this bash line, it will install the packages (make, python3.14, and tree) in the VM. 
 
 **Quick Test**
 
@@ -71,9 +71,9 @@ From the root of the cloned repository, run:
 make update
 ```
 
-Note that you are not running make env. This is because env was set up as a dependency on update already. If the env directory does not exist, it will run first. 
+Note that you are not running make env. This is because env was set up as a dependency on update already. `make update` will automatically create the virtual environment first if it doesn't exist, then install packages.
 
-It will then use the `requirements.txt` file and load the packages (pandas and numpy).
+If the env directory does not exist, it will run first. Then, tt will use the `requirements.txt` file and load the packages (pandas and numpy).
 
 **Quick Test**
 
