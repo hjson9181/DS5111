@@ -1,6 +1,8 @@
 # User should be able to call the script with `cat weekly_youtube_ids | clean_ids.py`` 
 # and the result should be output at the console of the cleaned ids.
 
+#!/usr/bin/env python3
+
 #basic configuration for the built-in logging module
 import logging
 logging.basicConfig(level=logging.WARNING, filename="pipeline_audit.log")
