@@ -111,9 +111,21 @@ def test_10_characters_to_fail(monkeypatch, capsys):
     captured = capsys.readouterr()
     assert captured.out == "hellohello"
 
-#@pytest.mark.skip(reason="feature is not ready yet")
-#what kind of youtube id should not be run on this test?
-#how to know which feature does or doesn't exist..?
+#this is a placeholder for an imaginary feature coming soon
+#for example, tiktok, instagram reels, facebok reels, etc
+@pytest.mark.skip(reason="feature coming soon but not yet")
+def test_future_id(monkeypatch, capsys):
+    """tests if the id in future features are kept and only invalid ones are disregarded"""
+    # 1. given a sequence of valid and invalid ids from future feature 
+    fake_input_5 = io.StringIO("tiktok\ngram\nfbreels\n")
+    monkeypatch.setattr(sys, "stdin", fake_input_5)
+    
+    # 2. run the main logic
+    main()
+    
+    # 3. then only valid ids are printed and invalid ones are disregarded 
+    captured = capsys.readouterr()
+    assert captured.out == "tiktok\ngram\nfbreels\n"
 
 @pytest.mark.parametrize("input_id, expected_output", [
     ("helloworld!","helloworld!\n"),
