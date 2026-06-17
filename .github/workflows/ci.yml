@@ -2,9 +2,9 @@ name: DS5111 Continuous Integration
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, LAB04_extract_transcript]
   pull_request:
-    branches: [ main ]
+    branches: [ main, LAB04_extract_transcript]
 
 jobs:
   build-and-test:
