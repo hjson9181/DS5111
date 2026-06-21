@@ -128,10 +128,10 @@ def test_future_id(monkeypatch, capsys):
     assert captured.out == "tiktok\ngram\nfbreels\n"
 
 @pytest.mark.parametrize("input_id, expected_output", [
-    ("helloworld!","helloworld!\n"),
-    ("validIDIDID","validIDIDID\n"),
-    ("invalidID",""),
-    ("hello","")
+    ("helloworld!",""), # invalid ID due to the special character
+    ("validIDIDID","validIDIDID\n"), # valid ID
+    ("invalidID",""), # invalid ID due to the character length
+    ("hello","") # invalid ID due to the character length
 ])
 def test_parametrized_id(monkeypatch, capsys, input_id, expected_output):
     """checks if valid IDs pass the test and invalid ones are disregarded"""
