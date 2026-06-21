@@ -10,5 +10,5 @@ update: env
 lint: env
 	. env/bin/activate; pylint bin/clean_ids.py
 
-test: env
-	. env/bin/activate; make lint && pytest -vv test
+test: lint
+	. env/bin/activate; pytest -vvx test
