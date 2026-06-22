@@ -116,22 +116,22 @@ def test_10_characters_to_fail(monkeypatch, capsys):
 @pytest.mark.skip(reason="feature coming soon but not yet")
 def test_future_id(monkeypatch, capsys):
     """tests if the id in future features are kept and only invalid ones are disregarded"""
-    # 1. given a sequence of valid and invalid ids from future feature 
+    # 1. given a sequence of valid and invalid ids from future feature
     fake_input_5 = io.StringIO("tiktok\ngram\nfbreels\n")
     monkeypatch.setattr(sys, "stdin", fake_input_5)
-    
+
     # 2. run the main logic
     main()
-    
-    # 3. then only valid ids are printed and invalid ones are disregarded 
+
+    # 3. then only valid ids are printed and invalid ones are disregarded
     captured = capsys.readouterr()
     assert captured.out == "tiktok\ngram\nfbreels\n"
 
 @pytest.mark.parametrize("input_id, expected_output", [
-    ("helloworld!","helloworld!\n"),
-    ("validIDIDID","validIDIDID\n"),
-    ("invalidID",""),
-    ("hello","")
+    ("helloworld!",""), # invalid ID due to the special character
+    ("validIDIDID","validIDIDID\n"), # valid ID
+    ("invalidID",""), # invalid ID due to the character length
+    ("hello","") # invalid ID due to the character length
 ])
 def test_parametrized_id(monkeypatch, capsys, input_id, expected_output):
     """checks if valid IDs pass the test and invalid ones are disregarded"""

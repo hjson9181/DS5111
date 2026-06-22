@@ -3,4 +3,5 @@ numpy
 pylint
 pytest
 google-genai
+youtube-transcript-api
 python-dotenv
