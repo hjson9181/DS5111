@@ -13,7 +13,7 @@ load_dotenv()
 
 # Direct logging statements to a shared audit log asset
 logging.basicConfig(
-    filename='DS5111/bin/pipeline_audit.log',
+    filename='pipeline_audit.log',
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
@@ -22,15 +22,15 @@ def main():
     logging.info("Pipeline Step 2A (Raw Extraction) started.")
     
     # Ingest routing keys from the local shell environment
-    proxy_user = os.getenv("gwmpvptd")
-    proxy_pass = os.getenv("7eyh69wtglfm")
+    proxy_user = os.getenv("WEBSHARE_USER")
+    proxy_pass = os.getenv("WEBSHARE_PASSWORD")
     
     if proxy_user and proxy_pass:
         logging.info("Proxy credentials detected. Routing traffic via Webshare Residential network.")
         # TODO:  Use YouTubeTranscriptApi with a keyword argument proxy_config.
         #    Use WebshareProxyConfig to create the proxy using the username and password
         ytt_api = YouTubeTranscriptApi(
-                proxy= WebshareProxyConfig(
+                proxy_config= WebshareProxyConfig(
                     proxy_username=proxy_user,
                     proxy_password=proxy_pass,
                 )

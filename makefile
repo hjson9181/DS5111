@@ -13,4 +13,6 @@ update: env
 test: lint
 	. env/bin/activate; pytest -vvx test
 
+test_enrich:
+	@. env/bin/activate && cat mock_transcripts.jsonl | python -u bin/enrich_transcripts.py | python bin/validate_schema.py
 	
