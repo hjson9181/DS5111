@@ -31,6 +31,49 @@ class LLMStrategy(ABC):
             - book_names: list[str]
         """
         pass
+# =====================================================================
+# 2. STRATEGY A: THE PRODUCTION GEMINI ENRICHER
+# =====================================================================
+class GeminiStrategy(LLMStrategy):
+    def __init__(self, api_key: str = None):
+        self.api_key = api_key or os.environ.get("GEMINI_API_KEY")
+        if not self.api_key:
+            logging.critical("GEMINI_API_KEY missing — cannot initialize GeminiStrategy.")
+            raise ValueError("GEMINI_API_KEY is required to initialize GeminiStrategy.")
+
+        self.client = genai.Client(api_key=self.api_key)
+
+        self.response_schema = {
+            "type": "OBJECT",
+            "properties": {
+                "video_id": {"type": "STRING"},
+                "cleaned_text": {"type": "STRING"},
+                "tech_terms": {"type": "ARRAY", "items": {"type": "STRING"}},
+                "book_names": {"type": "ARRAY", "items": {"type": "STRING"}},
+            },
+            "required": ["video_id", "cleaned_text"],
+        }
+
+    def enrich(self, video_id: str, raw_text: str) -> dict:
+        prompt = f"""
+        You are an elite data engineer. Clean this transcript text for video_id '{video_id}'.
+        1. Strip all timestamps and duration codes.
+        2. Extract technical architecture terms and books.
+        """
+
+        response = self.client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=f"{prompt}\n\nTRANSCRIPT:\n{raw_text}",
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema=self.response_schema,
+            ),
+        )
+
+        return json.loads(response.text)
+        
+# TODO: implement in next step — prompt construction + generate_content call
+        #raise NotImplementedError
     
 def main():
     logging.info("Pipeline Step 2B (Gemini Enrichment) started.")
