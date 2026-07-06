@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from abc import ABC, abstractmethod
+import argparse
 
 # Load environmental configurations from local workspace files
 load_dotenv()
@@ -32,7 +33,7 @@ class LLMStrategy(ABC):
         """
         pass
 # =====================================================================
-# 2. STRATEGY A: THE PRODUCTION GEMINI ENRICHER
+# 2. STRATEGY A: THE PRODUCTION GEMINI ENRICHER (Step 3 in LAB06a7)
 # =====================================================================
 class GeminiStrategy(LLMStrategy):
     def __init__(self, api_key: str = None):
@@ -71,106 +72,60 @@ class GeminiStrategy(LLMStrategy):
         )
 
         return json.loads(response.text)
-        
-# TODO: implement in next step — prompt construction + generate_content call
-        #raise NotImplementedError
-    
-def main():
+           
+def main(argv=None):
     logging.info("Pipeline Step 2B (Gemini Enrichment) started.")
+    parser = argparse.ArgumentParser(description="Transcript Enrichment Pipeline Node.")
+    parser.add_argument(
+        "--engine",
+        choices=["gemini", "mock"],
+        default="gemini",
+    )
+    args = parser.parse_args(argv)
     
-    # -------------------------------------------------------------------------
-    # TODO 1: API Environment Validation and Client Initialization
-    # Extract the necessary credential key token from the local environment.
-    # If the token is missing, log a critical failure and terminate the system.
-    # Otherwise, instantiate the official Google GenAI Client utility.
-    # -------------------------------------------------------------------------
-    # === YOUR CODE HERE ===
-    GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
-    if not GEMINI_API_KEY:
-        logging.critical("GEMINI_API_KEY")
-        sys.exit(1)
-    client = genai.Client(api_key = GEMINI_API_KEY)
-    # ======================
-
-    # -------------------------------------------------------------------------
-    # TODO 2: Structured Output Response Schema Definition
-    # To prevent the LLM from returning unpredictable formats that would crash
-    # downstream applications, define a strict "Data Contract" using a JSON 
-    # Schema layout. 
-    # 
-    # Enforce a response type of "OBJECT" that guarantees the presence of:
-    #   - video_id: (STRING, Required)
-    #   - cleaned_text: (STRING, Required)
-    #   - tech_terms: (ARRAY of STRINGS)
-    #   - book_names: (ARRAY of STRINGS)
-    # -------------------------------------------------------------------------
-    response_schema = {
-        "type": "OBJECT",
-        "properties": {
-            "video_id": {"type": "STRING"},
-            "cleaned_text": {"type": "STRING"},
-            "tech_terms": {"type": "ARRAY", "items": {"type": "STRING"}},
-            "book_names": {"type": "ARRAY", "items": {"type": "STRING"}},  
-        },
-        "required": ["video_id", "cleaned_text"],
-    }
-
-    # Stream processing framework reading line-by-line text inputs from stdin
-    for line in sys.stdin:
-        line = line.strip()
-        if not line:
-            continue
-            
-        # ---------------------------------------------------------------------
-        # TODO 3: Inbound String Stream Deserialization
-        # Safely wrap your stream ingestion inside an isolated try-except block.
-        # Parse the raw line string object into a key-value dictionary and 
-        # extract the target 'video_id' and 'raw_text' properties. 
-        # Log any malformed line tracks and continue processing the stream.
-        # ---------------------------------------------------------------------
-        try:
-            # EXTRACT PAYLOAD DETAILS HERE
-            data = json.loads(line)
-            video_id = data["video_id"]
-            raw_text = data["raw_text"]
-        except Exception as e:
-            logging.error(f"Failed to parse incoming JSON payload row: {str(e)}")
-            continue
-
-        logging.info(f"Orchestrating Gemini enrichment for video: {video_id}")
-        
-        prompt = f"""
-        You are an elite data engineer. Clean this transcript text for video_id '{video_id}'.
-        1. Strip all timestamps and duration codes.
-        2. Extract technical architecture terms and books.
-        """
-
-        # ---------------------------------------------------------------------
-        # TODO 4: Structured Model Invocation and Instant Stream Flushing
-        # Call the 'gemini-2.5-flash' model via the unified SDK interface.
-        # Inject the constructed prompt along with the raw text sequence payload.
-        # Map the configuration block to use the structured JSON mime-type 
-        # and enforce your defined response schema parameters.
-        # Write the resulting text explicitly to sys.stdout and flush immediately.
-        # ---------------------------------------------------------------------
-        try:
-            response = client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=f"{prompt}\n\nTRANSCRIPT:\n{raw_text}",
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                    response_schema=response_schema,
-                ),
-            )
-            # INVOCATION AND EMISSION PATTERN HERE
-            sys.stdout.write(response.text + "\n")
-            sys.stdout.flush()
-            
-        except Exception as e:
-            logging.error(f"Failed processing video {video_id} during LLM generation: {str(e)}")
+    selected_strategy = GeminiStrategy()
+    
+    engine = TranscriptEnricher(selected_strategy)
+    engine.run_stream()
 
     logging.info("Pipeline Step 2B finished.")
+    
+# =====================================================================
+# 4. THE INVARIANT PIPELINE CONTEXT (The Streaming Engine) (Step 4 in LAB06a)
+# =====================================================================
+class TranscriptEnricher:
+    def __init__(self, strategy: LLMStrategy):
+        self.strategy = strategy
 
+    def run_stream(self):
+        for line in sys.stdin:
+            line = line.strip()
+            if not line:
+                continue
+
+            # ---------------------------------------------------------
+            # Inbound line parsing — engine's responsibility, not the
+            # strategy's. Malformed rows are logged and skipped.
+            # ---------------------------------------------------------
+            try:
+                data = json.loads(line)
+                video_id = data["video_id"]
+                raw_text = data["raw_text"]
+            except Exception as e:
+                logging.error(f"Failed to parse incoming JSON payload row: {str(e)}")
+                continue
+
+            # ---------------------------------------------------------
+            # Delegate the actual enrichment work to whatever strategy
+            # was injected — engine has no idea if it's Gemini, Claude,
+            # or a mock.
+            # ---------------------------------------------------------
+            try:
+                result = self.strategy.enrich(video_id, raw_text)
+                sys.stdout.write(json.dumps(result) + "\n")
+                sys.stdout.flush()
+            except Exception as e:
+                logging.error(f"Failed processing video {video_id} during enrichment: {str(e)}")
 if __name__ == '__main__':
     main()
     
