@@ -12,8 +12,8 @@ This project runs a GitHub Actions CI (continuous integration) pipeline through 
 | Variable | Description | Example / Format | Required |
 |----------|-------------|------------------|----------|
 | `GITHUB_USERNAME` | GitHub account username and password | `GitHub_ID and password` | Yes |
-| `GEMINI_API_KEY` | API key for authenticating with the Google Gemini API | `...` | Yes |
-| `PROXY` | Webshare's residential proxy cluster | `` | Yes |
+| `GEMINI_API_KEY` | API key for authenticating with the Google Gemini API | `To be shared in a separate file due to security reason` | Yes |
+| `PROXY` | Webshare's residential proxy cluster | `To be shared in a separate file due to security reason` | Yes |
 | `SNOWFLAKE_ID` | Your complete University of Virginia ID in all CAPS | `UVA_ID` | Yes |
 | `SNOWFLAKE_PASSWORD` | Use the temporary administrative one-time credential code | `DS5111_UPPER CASE UVA ID_2026!` | Yes |
 | `SNOWFLAKE_ROLE` | Snowflake role used for the session | `DS5111` | Yes |
