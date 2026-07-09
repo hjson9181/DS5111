@@ -1,6 +1,23 @@
+
+
 # README for a VM set up for a new user 
 
 This README explains to a new user how to set up a new VM. After following these steps below, you will have a VM configured with necessary packages installed and your GitHub repository cloned and ready to use. 
+
+## Project Objective 
+This project runs a GitHub Actions CI (continuous integration) pipeline through the scripts in the `DS5111` repository. The pipeline ingests data via Standard Input (sys.stdin), processes it using `clean_ids.py`, `enrich_transcripts.py` and `extract_trasncripts`, and pipe results out via Standard Output (sys.stdout). On every push or pull request to `main` branch, GitHub Actions verifies that this code passes linting and the full test suite across Python 3.11, 3.12, and 3.13 before the work is considered mergeable.
+
+## Environment Configuration Variables
+
+| Variable | Description | Example / Format | Required |
+|----------|-------------|------------------|----------|
+| `GITHUB_USERNAME` | GitHub account username and password | `GitHub_ID and password` | Yes |
+| `GEMINI_API_KEY` | API key for authenticating with the Google Gemini API | `...` | Yes |
+| `PROXY` | Webshare's residential proxy cluster | `` | Yes |
+| `SNOWFLAKE_ID` | Your complete University of Virginia ID in all CAPS | `UVA_ID` | Yes |
+| `SNOWFLAKE_PASSWORD` | Use the temporary administrative one-time credential code | `DS5111_UPPER CASE UVA ID_2026!` | Yes |
+| `SNOWFLAKE_ROLE` | Snowflake role used for the session | `DS5111` | Yes |
+| `SNOWFLAKE_DATABASE` | Target Snowflake database name | `UVA student ID` | Yes |
 
 ## Prerequisites
 
