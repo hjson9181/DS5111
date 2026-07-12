@@ -72,8 +72,12 @@ class GeminiStrategy(LLMStrategy):
         )
 
         return json.loads(response.text)
-           
+          
 def main(argv=None):
+    """
+    Main entry point for the transcript enrichment pipeline.
+    Initializes the enrichment strategy and processes transcripts from stdin.
+    """
     logging.info("Pipeline Step 2B (Gemini Enrichment) started.")
     parser = argparse.ArgumentParser(description="Transcript Enrichment Pipeline Node.")
     parser.add_argument(
@@ -94,10 +98,12 @@ def main(argv=None):
 # 4. THE INVARIANT PIPELINE CONTEXT (The Streaming Engine) (Step 4 in LAB06a)
 # =====================================================================
 class TranscriptEnricher:
+    """Streaming engine for transcript enrichment processing."""
     def __init__(self, strategy: LLMStrategy):
         self.strategy = strategy
 
     def run_stream(self):
+    """Process incoming JSON lines from stdin and enrich transcripts."""
         for line in sys.stdin:
             line = line.strip()
             if not line:
@@ -111,7 +117,7 @@ class TranscriptEnricher:
                 data = json.loads(line)
                 video_id = data["video_id"]
                 raw_text = data["raw_text"]
-            except Exception as e:
+            except (json.JSONDecodeError, KeyError) as e:
                 logging.error(f"Failed to parse incoming JSON payload row: {str(e)}")
                 continue
 
@@ -124,7 +130,7 @@ class TranscriptEnricher:
                 result = self.strategy.enrich(video_id, raw_text)
                 sys.stdout.write(json.dumps(result) + "\n")
                 sys.stdout.flush()
-            except Exception as e:
+            except ValueError as e:
                 logging.error(f"Failed processing video {video_id} during enrichment: {str(e)}")
 if __name__ == '__main__':
     main()

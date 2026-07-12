@@ -10,6 +10,7 @@ from bin.extract_transcripts import main
 class MockTranscriptContainer:
     """Mimics the 2026 .to_raw_data() array output return schema"""
     def to_raw_data(self):
+        """Return mock transcript data in raw format."""
         return [
             {"start": 10.5, "text": "Automated container tracking loop text entry."}
         ]
@@ -20,7 +21,7 @@ def test_extract_transcripts_main_pipeline_stream(monkeypatch, capsys):
     and outputs structured JSON Lines objects via stdout without hitting the internet.
     """
     # 1. Mock the external third-party API fetch dependency
-    def stubbed_fetch_route(self, video_id):
+    def stubbed_fetch_route(video_id):
         return MockTranscriptContainer()
     monkeypatch.setattr(YouTubeTranscriptApi, "fetch", stubbed_fetch_route)
 
@@ -54,10 +55,10 @@ def test_invalid_ids(monkeypatch, capsys):
     it is skipped and the loop does not crash.
     """
     # 1. Mock the external third-party API fetch dependency
-    def stubbed_fetch_route(self, video_id):
+    def stubbed_fetch_route(video_id):
         if video_id == "valid_id_1234":
             return MockTranscriptContainer()
-        raise Exception(f"{video_id} can't be retrieved.")
+        raise ValueError(f"{video_id} can't be retrieved.")
     monkeypatch.setattr(YouTubeTranscriptApi, "fetch", stubbed_fetch_route)
 
     # 2. Mock Standard Input (sys.stdin) to feed a fake video ID into your script
@@ -87,7 +88,7 @@ def test_empty_ids(monkeypatch, capsys):
     it is skipped and the loop does not crash.
     """
     # 1. Mock the external third-party API fetch dependency
-    def stubbed_fetch_empty_id(self, video_id):
+    def stubbed_fetch_empty_id(video_id):
         pytest.fail("fetch() was called on an empty video ID and should be skipped.")
     monkeypatch.setattr(YouTubeTranscriptApi, "fetch", stubbed_fetch_empty_id)
 
