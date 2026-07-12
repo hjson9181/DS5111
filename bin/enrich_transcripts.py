@@ -103,7 +103,7 @@ class TranscriptEnricher:
         self.strategy = strategy
 
     def run_stream(self):
-    """Process incoming JSON lines from stdin and enrich transcripts."""
+        """Process incoming JSON lines from stdin and enrich transcripts."""
         for line in sys.stdin:
             line = line.strip()
             if not line:
