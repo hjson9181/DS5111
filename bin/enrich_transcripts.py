@@ -70,9 +70,7 @@ class GeminiStrategy(LLMStrategy):
                 response_schema=self.response_schema,
             ),
         )
-
         return json.loads(response.text)
-          
 def main(argv=None):
     """
     Main entry point for the transcript enrichment pipeline.

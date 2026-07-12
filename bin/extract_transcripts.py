@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Extract YouTube transcripts and emit as structured JSON payloads."""
 import sys
 import os
 import json
@@ -19,6 +20,7 @@ logging.basicConfig(
 )
 
 def main():
+    """Extract YouTube video transcripts from stdin and output structured JSON."""
     logging.info("Pipeline Step 2A (Raw Extraction) started.")
     
     # Ingest routing keys from the local shell environment
@@ -45,7 +47,7 @@ def main():
         if not video_id:
             continue
             
-        logging.info(f"Processing transcript extraction for video: {video_id}")
+        logging.info(f"Processing transcript extraction for video: %s", video_id)
         
         try:
             # Execute the modern 2026 instance lookup method
@@ -64,8 +66,8 @@ def main():
             sys.stdout.write(json.dumps(payload) + "\n")
             sys.stdout.flush()
             
-        except Exception as e:
-            logging.error(f"Failed to fetch YouTube transcript for {video_id}: {str(e)}")
+        except (ValueError, KeyError, Exception) as e:
+            logging.error(f"Failed to fetch YouTube transcript for %s: %s", video_id, str(e))
             continue
 
     logging.info("Pipeline Step 2A finished.")
