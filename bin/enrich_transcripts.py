@@ -84,12 +84,9 @@ def main(argv=None):
         default="gemini",
     )
     args = parser.parse_args(argv)
-    
     selected_strategy = GeminiStrategy()
-    
     engine = TranscriptEnricher(selected_strategy)
     engine.run_stream()
-
     logging.info("Pipeline Step 2B finished.")
     
 # =====================================================================

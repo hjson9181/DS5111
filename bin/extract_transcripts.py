@@ -47,7 +47,7 @@ def main():
         if not video_id:
             continue
             
-        logging.info(f"Processing transcript extraction for video: %s", video_id)
+        logging.info("Processing transcript extraction for video: %s", video_id)
         
         try:
             # Execute the modern 2026 instance lookup method
@@ -66,8 +66,8 @@ def main():
             sys.stdout.write(json.dumps(payload) + "\n")
             sys.stdout.flush()
             
-        except (ValueError, KeyError, Exception) as e:
-            logging.error(f"Failed to fetch YouTube transcript for %s: %s", video_id, str(e))
+        except (ValueError, KeyError) as e:
+            logging.error("Failed to fetch YouTube transcript for %s: %s", video_id, str(e))
             continue
 
     logging.info("Pipeline Step 2A finished.")
