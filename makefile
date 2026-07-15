@@ -13,7 +13,7 @@ update: env
 #	. env/bin/activate; pip install -r requirements.txt
 
 lint: update
-	$(PYTHON) -m pylint bin/ lib/ tests/
+	$(PYTHON) -m pylint bin/ tests/
 #	. env/bin/activate; pylint bin/clean_ids.py
 
 test: lint

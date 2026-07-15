@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
+"""
+This is a shebang line to tell the operating system 
+which interpreter to run when someone executes this file directly
+"""
 import sys
 import os
 import json
 import logging
+from abc import ABC, abstractmethod
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-from abc import ABC, abstractmethod
 import argparse
 
 # Load environmental configurations from local workspace files
@@ -20,7 +24,14 @@ logging.basicConfig(
 )
 
 # Enrichment contract (interfact)
+# pylint: disable=too-few-public-methods
 class LLMStrategy(ABC):
+    """
+    Abstract base class defining the Strategy pattern interface for
+    LLM-based transcript enrichment.
+    This interface lets the pipeline swap enrichment backends in and out
+    without changing the engine. Subclasses must implement enrich().
+    """
     @abstractmethod
     def enrich(self, video_id: str, raw_text: str) -> dict:
         """
@@ -31,11 +42,17 @@ class LLMStrategy(ABC):
             - tech_terms: list[str]
             - book_names: list[str]
         """
-        pass
 # =====================================================================
 # 2. STRATEGY A: THE PRODUCTION GEMINI ENRICHER (Step 3 in LAB06a7)
 # =====================================================================
 class GeminiStrategy(LLMStrategy):
+    """
+    Concrete strategy that implements the enrichment contract
+    using Google's Gemini 2.5 flash model.
+    Requires a GEMINI_API_KEY environment variable and raises Value Error if it is missing. 
+    Enforces a fixed JSON schema on the model's response so 
+    downstream stages receive a predictable structure.
+    """
     def __init__(self, api_key: str = None):
         self.api_key = api_key or os.environ.get("GEMINI_API_KEY")
         if not self.api_key:
@@ -88,7 +105,7 @@ def main(argv=None):
     engine = TranscriptEnricher(selected_strategy)
     engine.run_stream()
     logging.info("Pipeline Step 2B finished.")
-    
+
 # =====================================================================
 # 4. THE INVARIANT PIPELINE CONTEXT (The Streaming Engine) (Step 4 in LAB06a)
 # =====================================================================
@@ -129,5 +146,3 @@ class TranscriptEnricher:
                 logging.error(f"Failed processing video {video_id} during enrichment: {str(e)}")
 if __name__ == '__main__':
     main()
-    
-    
