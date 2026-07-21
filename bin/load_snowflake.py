@@ -8,7 +8,7 @@ from dotenv import load_dotenv  # <-- Added to support standard .env loading
 
 # Establish clean centralized diagnostic logging metrics output footprint
 logging.basicConfig(
-    filename='pipeline/logs/pipeline_audit.log',
+    filename='pipeline_audit.log',
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
@@ -27,7 +27,12 @@ def main():
     # -------------------------------------------------------------------------
     sf_user = os.getenv('SF_USER')
     sf_password = os.getenv('SF_PASSWORD')
-    
+    sf_schema = os.getenv('SF_SCHEMA')
+    sf_account = os.getenv('SF_ACCOUNT')
+    sf_warehouse = os.getenv('SF_WAREHOUSE')
+    sf_database = os.getenv('SF_DATABASE')
+    sf_role = os.getenv('SF_ROLE')
+
     if not sf_user or not sf_password:
         logging.critical("Missing critical Snowflake runtime credential bindings. Ingestion aborted.")
         sys.exit(1)
@@ -35,7 +40,10 @@ def main():
     try:
         # Pass the pre-extracted user/password variables along with remaining context configs
         ### TODO 1 CODE START HERE
-        ctx = snowflake.connector.connect(user=sf_user, password=sf_password)
+        ctx = snowflake.connector.connect(user=sf_user, password=sf_password,
+                                          schema=sf_schema, account=sf_account,
+                                          warehouse=sf_warehouse, database = sf_database,
+                                          role=sf_role)
         cs = ctx.cursor()
         pass
         ### TODO 1 CODE END HERE
@@ -52,7 +60,7 @@ def main():
     # -------------------------------------------------------------------------
     try:
         ### TODO 2 CODE START
-        cs.execute("""CREATE TABLE IF NOT EXISTS DOCUMENTS (
+        cs.execute("""CREATE TABLE IF NOT EXISTS RAW_TRANSCRIPTS (
             raw_unstructured VARIANT, 
             record_ingestion TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
             )
@@ -87,7 +95,9 @@ def main():
             # validated python dictionary cleanly back into a serialized string payload.
 
             ### TODO 3 CODE START
-            # cs.execute(..., ...)
+            cs.execute("INSERT INTO RAW_TRANSCRIPTS (raw_unstructured) SELECT (PARSE_JSON(%s))",
+                       (json.dumps(json_data),)
+                       )
             ### TODO 3 CODE END
             
             # Left intact from your original template design:
@@ -101,8 +111,8 @@ def main():
     # out down to the operating system runtime container layout.
     # -------------------------------------------------------------------------
     ### TODO 4 CODE START
-    # cs.close()
-    # ctx.close()
+    cs.close()
+    ctx.close()
     ### TODO 4 CODE END
     logging.info("Pipeline Step 3 finished execution cycles cleanly.")
 
