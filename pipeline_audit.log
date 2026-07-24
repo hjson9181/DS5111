@@ -14,3 +14,11 @@ WARNING:root:Invalid ID:
 2026-06-24 00:57:15,811 - INFO - AFC is enabled with max remote calls: 10.
 2026-06-24 00:57:17,428 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
 2026-06-24 00:57:17,430 - INFO - Pipeline Step 2B finished.
+2026-06-24 02:22:35,513 - INFO - Pipeline Step 2B (Gemini Enrichment) started.
+2026-06-24 02:22:35,603 - INFO - Orchestrating Gemini enrichment for video: ds5111_v001
+2026-06-24 02:22:35,606 - INFO - AFC is enabled with max remote calls: 10.
+2026-06-24 02:22:37,631 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-06-24 02:22:37,634 - INFO - Orchestrating Gemini enrichment for video: ds5111_v002
+2026-06-24 02:22:37,636 - INFO - AFC is enabled with max remote calls: 10.
+2026-06-24 02:22:40,625 - INFO - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent "HTTP/1.1 200 OK"
+2026-06-24 02:22:40,627 - INFO - Pipeline Step 2B finished.
