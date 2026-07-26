@@ -1,0 +1,3 @@
+{
+  "tests/test_clean_ids.py::test_parametrized_id[helloworld!-helloworld!\\n]": true
+}
