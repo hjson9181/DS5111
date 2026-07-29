@@ -1,0 +1,7 @@
+default:
+	@cat makefile
+job1: 
+	file1
+job2:
+	file2
+

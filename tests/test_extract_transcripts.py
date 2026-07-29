@@ -3,13 +3,13 @@ import io
 import json
 import pytest
 from youtube_transcript_api import YouTubeTranscriptApi
-
 # Import the executable main entry point loop from your pipeline package directory
 from bin.extract_transcripts import main
 
 class MockTranscriptContainer:
     """Mimics the 2026 .to_raw_data() array output return schema"""
     def to_raw_data(self):
+        """Return mock transcript data in raw format."""
         return [
             {"start": 10.5, "text": "Automated container tracking loop text entry."}
         ]
@@ -20,7 +20,7 @@ def test_extract_transcripts_main_pipeline_stream(monkeypatch, capsys):
     and outputs structured JSON Lines objects via stdout without hitting the internet.
     """
     # 1. Mock the external third-party API fetch dependency
-    def stubbed_fetch_route(self, video_id):
+    def stubbed_fetch_route():
         return MockTranscriptContainer()
     monkeypatch.setattr(YouTubeTranscriptApi, "fetch", stubbed_fetch_route)
 
@@ -33,19 +33,19 @@ def test_extract_transcripts_main_pipeline_stream(monkeypatch, capsys):
 
     # 4. Intercept the standard console terminal print buffers using capsys
     captured_output = capsys.readouterr()
-    
+
     # Clean up trailing whitespace and isolate rows
     stdout_lines = captured_output.out.strip().split("\n")
 
     # 5. Execute structural validations against the emitted JSON Lines payload contract
     assert len(stdout_lines) == 1, "The pipeline loop should emit exactly one row per valid input ID."
-    
+
     parsed_json_line = json.loads(stdout_lines[0])
-    
+
     assert parsed_json_line["video_id"] == "fake_video_999"
     assert "Automated container tracking" in parsed_json_line["raw_text"]
 
-# Test to verify if the script catches an error gracefully 
+# Test to verify if the script catches an error gracefully
 # when an invalid, empty, or un-fetchable video ID hits the input processor stream.
 
 def test_invalid_ids(monkeypatch, capsys):
@@ -54,10 +54,10 @@ def test_invalid_ids(monkeypatch, capsys):
     it is skipped and the loop does not crash.
     """
     # 1. Mock the external third-party API fetch dependency
-    def stubbed_fetch_route(self, video_id):
+    def stubbed_fetch_route(video_id):
         if video_id == "valid_id_1234":
             return MockTranscriptContainer()
-        raise Exception(f"{video_id} can't be retrieved.")
+        raise ValueError(f"{video_id} can't be retrieved.")
     monkeypatch.setattr(YouTubeTranscriptApi, "fetch", stubbed_fetch_route)
 
     # 2. Mock Standard Input (sys.stdin) to feed a fake video ID into your script
@@ -69,25 +69,25 @@ def test_invalid_ids(monkeypatch, capsys):
 
     # 4. Intercept the standard console terminal print buffers using capsys
     captured_output = capsys.readouterr()
-    
+
     # Clean up trailing whitespace and isolate rows
     stdout_lines = captured_output.out.strip().split("\n")
 
     # 5. Execute structural validations against the emitted JSON Lines payload contract
     assert len(stdout_lines) == 1, "The pipeline loop should emit exactly one row per valid input ID."
-    
+
     parsed_json_line = json.loads(stdout_lines[0])
-    
+
     assert parsed_json_line["video_id"] == "valid_id_1234"
     assert "Automated container tracking" in parsed_json_line["raw_text"]
-    
+
 def test_empty_ids(monkeypatch, capsys):
     """
     Verifies when the script catches an empty id in stdin
     it is skipped and the loop does not crash.
     """
     # 1. Mock the external third-party API fetch dependency
-    def stubbed_fetch_empty_id(self, video_id):
+    def stubbed_fetch_empty_id():
         pytest.fail("fetch() was called on an empty video ID and should be skipped.")
     monkeypatch.setattr(YouTubeTranscriptApi, "fetch", stubbed_fetch_empty_id)
 
@@ -100,6 +100,6 @@ def test_empty_ids(monkeypatch, capsys):
 
     # 4. Intercept the standard console terminal print buffers using capsys
     captured_output = capsys.readouterr()
-    
+
     # 5. Execute structural validations against the emitted JSON Lines payload contract
     assert captured_output.out.strip() == "", "The pipeline should have no stdout when stdin is empty."
